@@ -1,0 +1,83 @@
+describe("Testing all routes", () => 
+{
+    const BASE_URL = "http://localhost:5249/orders"
+
+    const newOrder = {
+        tableId: 1,
+        commandId: 22,
+        PizzaIds: ["2ab65753-3b4d-4ccf-bf1b-cdd79c81978c"]
+    }
+
+    const orderUpdate = {
+        tableId: 4        
+    }
+
+    it("teste #1: Create an order", async () => 
+    {
+        const result = await fetch(BASE_URL, 
+            {
+                method: "POST",
+                headers : { "Content-Type": "application/json" },
+                body: JSON.stringify(newOrder)
+            }
+        )
+        .then(res => res.json())
+        .catch(error => console.log(error))
+                
+        expect(result.commandId).toBe(newOrder.commandId)
+        expect(result.tableId).toBe(newOrder.tableId)
+
+        newOrder["id"] = result.id
+    })
+
+    it("teste #2: Get the newest Order", async () => 
+    {
+        const result = await fetch(BASE_URL+"/"+newOrder["id"], 
+            {method: "GET"}
+        )
+        .then(response => response.json())
+        .catch(error => console.log(error))
+
+        expect(result.id).toBe(newOrder["id"])
+    })    
+
+
+    it("teste #3: Update the Order", async () => 
+    {    
+
+        const result = await fetch(BASE_URL+"/"+newOrder["id"],
+            {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(orderUpdate)
+            })            
+            .then(res => res.json())
+            .catch(error => console.log(error))   
+        
+        expect(result.tableId).toBe(orderUpdate.tableId)        
+    })
+
+
+    it("teste #4: Get Updated Order", async () => 
+    {
+        const result = await fetch(BASE_URL+"?"+new URLSearchParams({
+                tableId: orderUpdate.tableId                
+            })).then(res => res.json())
+            .catch(error => console.log(error))
+        
+        expect(result[0].tableId).toBe(orderUpdate.tableId)
+        expect(result[0].commandId).toBe(newOrder.commandId)
+    })
+
+    it("teste #5: Delete the Order", async () => 
+    {
+        const result = await fetch(BASE_URL+"/"+newOrder["id"], 
+            {method: "DELETE"}
+        )
+        .then(response => response.json())
+        .catch(error => console.log(error))
+        
+        expect(result).toBe(newOrder["id"])
+    })
+
+})
