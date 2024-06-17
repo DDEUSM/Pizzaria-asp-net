@@ -68,9 +68,19 @@ public class PizzaUseCases: IPizzaUseCases
 
     public List<Pizza>? Get(PizzaQuery pizzaQuery)
     {        
-        return PizzariaContext.Pizzas
+        List<Pizza> pizzas = PizzariaContext.Pizzas
             .Where(pizza => pizza.AllPropertiesMatches(pizzaQuery))
             .ToList();
+        
+        if (pizzas.Count == 0)
+        {
+            throw new ApiException(
+                message: "Pizzas not founded!",
+                statusCode: 404
+            );
+        }
+        
+        return pizzas;
     }
 
     public void Replace(Guid id, Pizza pizza)

@@ -58,16 +58,8 @@ public class PizzasController: ControllerBase
     [HttpGet()]
     public IActionResult Get([FromQuery] PizzaQuery pizzaQuery)
     {          
-        try
-        {
-            List<Pizza>? pizzas = _pizzaUseCases.Get(pizzaQuery);
-            return Ok(pizzas);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"{ex.Message}");
-            return Ok(pizzaQuery);
-        }
+        List<Pizza>? pizzas = _pizzaUseCases.Get(pizzaQuery);
+        return Ok(pizzas);
     }
 
     [HttpPatch("{id:guid}")]

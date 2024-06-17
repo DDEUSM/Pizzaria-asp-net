@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -29,6 +27,7 @@ public class OrdersController: ControllerBase
     [HttpGet("{id:guid}")]
     public IActionResult GetById(Guid id)
     {
+        Console.WriteLine(Environment.GetEnvironmentVariable("ASPNETCORE_SQLSERVER"));
         throw new NotImplementedException();
     }
 
