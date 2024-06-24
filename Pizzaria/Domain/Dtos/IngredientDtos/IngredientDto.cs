@@ -5,7 +5,7 @@ public class IngredientDto
 {
     public Guid? Id { get; set; }
 
-    [Required]
+    [Required, MaxLength(75)]
     public string Name { get; set; }
 
     [Required]
@@ -14,7 +14,7 @@ public class IngredientDto
     [Required]
     public float UnitPrice { get; set; }
 
-    [Required]
+    [Required, MaxLength(2)]
     public string Unit { get; set; }
 
     [JsonConstructor]
