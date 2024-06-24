@@ -2,9 +2,8 @@ using System.Reflection;
 
 public static class UtilsMethods
 {
-    public static bool AllPropertiesMatches<T,Q>(this T objAim, Q query)     
-    {
-        
+    public static bool MatchProperties<T,Q>(this T objAim, Q query)     
+    {        
         var queryProperties = typeof(Q).GetProperties();
         if (queryProperties == null )
         {
@@ -36,7 +35,7 @@ public static class UtilsMethods
         return propertyValue;
     }
 
-    public static void SetNewPropertyValues<A, B>(A newPropertyValues, B CurrentObject)
+    public static void SetNewPropertyValues<B, A>(this B CurrentObject, A newPropertyValues)
     {
         var properties = newPropertyValues.GetType().GetProperties();
         foreach (var property in properties)

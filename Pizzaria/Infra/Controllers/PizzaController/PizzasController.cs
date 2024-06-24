@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -12,20 +13,29 @@ public class PizzasController: ControllerBase
     }
 
     [HttpPost()]
-    public IActionResult Create(CreatePizzaRequest request)
-    {                   
-        Pizza result = _pizzaUseCases.Create(request);  
+    public IActionResult Create([FromBody] PizzaInputDto pizzaDto)
+    {         
+        Pizza createdPizza = _pizzaUseCases.Create(pizzaDto);  
+
+        var pizzaIngredientDtos = createdPizza.PizzaIngredients
+            .Select(pizzaIngredient => new PizzaIngredientDto (
+                id: pizzaIngredient.Id,
+                ingredientName: pizzaIngredient.IngredientName,
+                ingredientId: pizzaIngredient.IngredientId,
+                quantity: pizzaIngredient.Quantity,
+                unit: pizzaIngredient.Unit
+            )).ToList();  
         
-        var newPizzaResponse = new PizzaResponse (
-                result.Id,
-                result.Position,
-                result.Name,
-                result.Description,
-                result.SizeCategory,            
-                result.Price,
-                result.ProductionCost,
-                result.Discount,
-                result.Quantity
+        var newPizzaResponse = new PizzaOutputDto (
+                createdPizza.Id,
+                createdPizza.Name,
+                createdPizza.Description,
+                createdPizza.SizeCategory.ToString(),    
+                pizzaIngredientDtos,        
+                createdPizza.Price,
+                createdPizza.ProductionCost,
+                createdPizza.Discount,
+                createdPizza.CreatedAt
             );
 
         return CreatedAtAction (
@@ -35,42 +45,51 @@ public class PizzasController: ControllerBase
             );
     }
 
-    [HttpGet("{id:guid}")]
-    public IActionResult GetById(Guid id)
+    [HttpGet("{id}")]
+    public IActionResult GetById(string id)
     {        
-        Pizza? foundedPizza = _pizzaUseCases.GetById(id);
+        PizzaOutputDto foundedPizza = _pizzaUseCases.GetById(id);
 
-        PizzaResponse response = new PizzaResponse (
-            foundedPizza.Id,
-            foundedPizza.Position,
-            foundedPizza.Name,
-            foundedPizza.Description,
-            foundedPizza.SizeCategory,
-            foundedPizza.Price,
-            foundedPizza.ProductionCost,
-            foundedPizza.Discount,
-            foundedPizza.Quantity
-        );
-
-        return Ok(response);
+        return Ok(foundedPizza);
     }
 
     [HttpGet()]
     public IActionResult Get([FromQuery] PizzaQuery pizzaQuery)
     {          
         List<Pizza>? pizzas = _pizzaUseCases.Get(pizzaQuery);
-        return Ok(pizzas);
+
+        var pizzasResponse = pizzas.Select(pizza => new PizzaOutputDto (
+            pizza.Id,
+            pizza.Name,
+            pizza.Description,
+            pizza.SizeCategory.ToString(),
+            new List<PizzaIngredientDto>(),
+            pizza.Price,
+            pizza.ProductionCost,
+            pizza.Discount,
+            pizza.CreatedAt   
+        ));
+        return Ok(pizzasResponse);
     }
 
-    [HttpPatch("{id:guid}")]
-    public IActionResult Update(Guid id, UpdatePizzaRequest request)
+    [HttpPatch("{id}")]
+    public IActionResult Update(string id, JsonPatchDocument<PizzaInputDto> pizzaPatchDocument)
     {
-        throw new NotImplementedException();
+        if (pizzaPatchDocument == null)
+        {
+            throw new ApiException (
+                message: "Bad request patch",
+                statusCode: 400
+            );
+        }
+        _pizzaUseCases.Update(id, pizzaPatchDocument, ModelState);
+        return NoContent();
     }
 
-    [HttpDelete("{id:guid}")]
-    public IActionResult Delete(Guid id)
+    [HttpDelete("{id}")]
+    public IActionResult Delete(string id)
     {
-        throw new NotImplementedException();
+        _pizzaUseCases.Delete(id);
+        return NoContent();
     }
 }

@@ -1,7 +1,9 @@
 public class IngredientQuery 
 {
-    public string Name { get; }
-    public float Quantity { get; }
-    public float UnitPrice { get; }
-    public string Unit { get; }
+    public string? Name { get; set; }
+    public float? MinQuantity { get; set; }
+    public float? MaxQuantity { get; set; }
+    public float? MinUnitPrice { get; set; }
+    public float? MaxUnitPrice { get; set; }
+    public string? Unit { get; set; }
 }

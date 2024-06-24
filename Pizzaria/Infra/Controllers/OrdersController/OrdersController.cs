@@ -4,17 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 [Route("[controller]")]
 public class OrdersController: ControllerBase
 {    
-    public IIngredientRepository _ingredientRepository { get; set; }
-    public IPizzaRepository _pizzaRepository { get; set; }
-    public IOrderRepository _orderRepository { get; set; }
     public OrdersController (
-        IIngredientRepository ingredientRepository,
-        IPizzaRepository pizzaRepository,
-        IOrderRepository orderRepository
+       
     ){
-        _ingredientRepository = ingredientRepository;
-        _pizzaRepository = pizzaRepository;
-        _orderRepository = orderRepository;
+      
     }
 
     [HttpPost()]
@@ -27,7 +20,6 @@ public class OrdersController: ControllerBase
     [HttpGet("{id:guid}")]
     public IActionResult GetById(Guid id)
     {
-        Console.WriteLine(Environment.GetEnvironmentVariable("ASPNETCORE_SQLSERVER"));
         throw new NotImplementedException();
     }
 

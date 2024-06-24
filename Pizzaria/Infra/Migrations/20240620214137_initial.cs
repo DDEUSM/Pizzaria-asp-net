@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Pizzaria.Migrations
+namespace Pizzaria.infra
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,7 +16,6 @@ namespace Pizzaria.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Position = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Quantity = table.Column<float>(type: "real", nullable: false),
                     UnitPrice = table.Column<float>(type: "real", nullable: false),
@@ -32,7 +31,6 @@ namespace Pizzaria.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Position = table.Column<int>(type: "int", nullable: false),
                     TableId = table.Column<int>(type: "int", nullable: false),
                     CommandId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -45,15 +43,14 @@ namespace Pizzaria.Migrations
                 name: "Pizzas",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Position = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SizeCategory = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<float>(type: "real", nullable: false),
                     ProductionCost = table.Column<float>(type: "real", nullable: false),
                     Discount = table.Column<float>(type: "real", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -61,27 +58,35 @@ namespace Pizzaria.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "OrderPizza",
+                name: "OrderPizzas",
                 columns: table => new
                 {
-                    OrdersId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PizzasId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FirstPizzaId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    SecondPizzaId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OrderPizza", x => new { x.OrdersId, x.PizzasId });
+                    table.PrimaryKey("PK_OrderPizzas", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_OrderPizza_Orders_OrdersId",
-                        column: x => x.OrdersId,
+                        name: "FK_OrderPizzas_Orders_OrderId",
+                        column: x => x.OrderId,
                         principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_OrderPizza_Pizzas_PizzasId",
-                        column: x => x.PizzasId,
+                        name: "FK_OrderPizzas_Pizzas_FirstPizzaId",
+                        column: x => x.FirstPizzaId,
                         principalTable: "Pizzas",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_OrderPizzas_Pizzas_SecondPizzaId",
+                        column: x => x.SecondPizzaId,
+                        principalTable: "Pizzas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -89,8 +94,9 @@ namespace Pizzaria.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PizzaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PizzaId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     IngredientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IngredientName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Quantity = table.Column<float>(type: "real", nullable: false),
                     Unit = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -112,9 +118,19 @@ namespace Pizzaria.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderPizza_PizzasId",
-                table: "OrderPizza",
-                column: "PizzasId");
+                name: "IX_OrderPizzas_FirstPizzaId",
+                table: "OrderPizzas",
+                column: "FirstPizzaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderPizzas_OrderId",
+                table: "OrderPizzas",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderPizzas_SecondPizzaId",
+                table: "OrderPizzas",
+                column: "SecondPizzaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PizzaIngredients_IngredientId",
@@ -131,7 +147,7 @@ namespace Pizzaria.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "OrderPizza");
+                name: "OrderPizzas");
 
             migrationBuilder.DropTable(
                 name: "PizzaIngredients");

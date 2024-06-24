@@ -5,8 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 public class PizzaIngredient
 {
     public Guid Id { get; init; }
-    public Guid PizzaId { get; init; }
-    public Guid IngredientId { get; init; }
+    public string PizzaId { get; set; }
+    public Guid IngredientId { get; set; }
+    public string IngredientName { get; set;}
     public float Quantity { get; set; }
     public string Unit { get; set; }
     public Pizza Pizza { get; set; }
@@ -14,14 +15,16 @@ public class PizzaIngredient
 
     public PizzaIngredient (
         Guid id,
-        Guid pizzaId,
+        string pizzaId,
         Guid ingredientId,
+        string ingredientName,
         float quantity,
         string unit
     ){
         Id = id;
         PizzaId = pizzaId;
         IngredientId = ingredientId;
+        IngredientName = ingredientName;
         Quantity = quantity;
         Unit = unit;
     }

@@ -1,33 +1,24 @@
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("[controller]")]
 public class IngredientsController: ControllerBase
 {
-    private IIngredientRepository _ingredientRepository;
+    private IIngredientUseCases _ingredientUseCases;
     public IngredientsController (
-        IIngredientRepository ingredientRepository
+        IIngredientUseCases ingredientUseCases
     ){
-        _ingredientRepository = ingredientRepository;
+        _ingredientUseCases = ingredientUseCases;
     }
 
     [HttpPost()]
-    public IActionResult Create(CreateIngredientRequest request)
-    {
-        Ingredient newIngredient = new (
-            Guid.NewGuid(),
-            0,
-            request.Name,
-            request.Quantity,
-            request.UnitPrice,
-            request.Unit
-        );
+    public IActionResult Create([FromBody] IngredientDto ingredientDto)
+    {        
+        Ingredient newIngredient = _ingredientUseCases.Create(ingredientDto);
 
-        _ingredientRepository.Create(newIngredient);
-
-        IngredientResponse ingredientResponse = new (
+        IngredientDto ingredientResponse = new IngredientDto (
             newIngredient.Id,
-            newIngredient.Position,
             newIngredient.Name,
             newIngredient.Quantity,
             newIngredient.UnitPrice,
@@ -44,48 +35,42 @@ public class IngredientsController: ControllerBase
     [HttpGet("{id:guid}")]
     public IActionResult GetById(Guid id)
     {
-        Ingredient foundedIngredient = _ingredientRepository.GetById(id);
-        if (foundedIngredient == null)
-        {
-            return NotFound();
-        }
-        var ingredientResponse = new IngredientResponse(
-            foundedIngredient.Id,
-            foundedIngredient.Position,
-            foundedIngredient.Name,
-            foundedIngredient.Quantity,
-            foundedIngredient.UnitPrice,
-            foundedIngredient.Unit
-        );
-        return Ok(ingredientResponse);
+        Ingredient foundedIngrdient = _ingredientUseCases.GetById(id);
+        return Ok(foundedIngrdient);
     }
 
     [HttpGet()]
     public IActionResult Get([FromQuery] IngredientQuery ingredientQuery)
     {
-        List<Ingredient> ingredients = _ingredientRepository.Get(ingredientQuery);
-        List<IngredientResponse> ingredientsResponse = ingredients.Select(ingredient => new IngredientResponse(
+       List<Ingredient> ingredientsFounded = _ingredientUseCases.Get(ingredientQuery);
+       List<IngredientDto> ingredientDtos = ingredientsFounded.Select(ingredient => new IngredientDto(
             ingredient.Id,
-            ingredient.Position,
             ingredient.Name,
             ingredient.Quantity,
             ingredient.UnitPrice,
             ingredient.Unit
-        )).ToList();
-        return Ok(ingredientsResponse);
+       )).ToList();
+       return Ok(ingredientDtos);
     }
 
-    [HttpPut("{id:guid}")]
-    public IActionResult Update(Guid id, UpdateIngredientRequest request)
+    [HttpPatch("{id:guid}")]
+    public IActionResult Update(Guid id, JsonPatchDocument<IngredientDto> patch)
     {
-        _ingredientRepository.Update(id, request);
-        return Ok(request);
+         if (patch == null)
+        {
+            throw new ApiException (
+                message: "Bad request patch",
+                statusCode: 400
+            );
+        }
+        _ingredientUseCases.Update(id, patch, ModelState);
+        return NoContent();
     }
 
     [HttpDelete("{id:guid}")]
     public IActionResult Delete(Guid id) 
     {
-        _ingredientRepository.Delete(id);
-        return Ok(id);
+        _ingredientUseCases.Delete(id);
+        return NoContent();
     }
 }

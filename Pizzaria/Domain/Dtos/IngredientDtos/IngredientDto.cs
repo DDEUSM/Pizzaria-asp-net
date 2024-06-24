@@ -1,19 +1,36 @@
-
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
-[Table("Ingredients")]
-public class Ingredient 
+public class IngredientDto
 {
-    public Guid Id { get; init; }
-    public string Name { get; set; }
-    public float Quantity { get; set; }
-    public float UnitPrice { get; set; }
-    public string Unit { get; set; }
-    public ICollection<PizzaIngredient> PizzaIngredients { get; set; }
+    public Guid? Id { get; set; }
 
-    public Ingredient (
+    [Required]
+    public string Name { get; set; }
+
+    [Required]
+    public float Quantity { get; set; }
+
+    [Required]
+    public float UnitPrice { get; set; }
+
+    [Required]
+    public string Unit { get; set; }
+
+    [JsonConstructor]
+    public IngredientDto (
+        string name,
+        float quantity,
+        float unitPrice,
+        string unit
+    ){
+        Name = name;
+        Quantity = quantity;
+        UnitPrice = unitPrice;
+        Unit = unit;
+    }
+
+     public IngredientDto (
         Guid id,
         string name,
         float quantity,

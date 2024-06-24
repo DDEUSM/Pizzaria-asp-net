@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Pizzaria.Migrations
+namespace Pizzaria.infra
 {
     [DbContext(typeof(PizzariaDbContext))]
-    [Migration("20240610220203_Initial")]
-    partial class Initial
+    [Migration("20240620214137_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,9 +33,6 @@ namespace Pizzaria.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Position")
-                        .HasColumnType("int");
 
                     b.Property<float>("Quantity")
                         .HasColumnType("real");
@@ -61,9 +58,6 @@ namespace Pizzaria.Migrations
                     b.Property<int>("CommandId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Position")
-                        .HasColumnType("int");
-
                     b.Property<int>("TableId")
                         .HasColumnType("int");
 
@@ -74,24 +68,39 @@ namespace Pizzaria.Migrations
 
             modelBuilder.Entity("OrderPizza", b =>
                 {
-                    b.Property<Guid>("OrdersId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("PizzasId")
+                    b.Property<string>("FirstPizzaId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("OrdersId", "PizzasId");
+                    b.Property<string>("SecondPizzaId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
-                    b.HasIndex("PizzasId");
+                    b.HasKey("Id");
 
-                    b.ToTable("OrderPizza");
+                    b.HasIndex("FirstPizzaId");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("SecondPizzaId");
+
+                    b.ToTable("OrderPizzas");
                 });
 
             modelBuilder.Entity("Pizza", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -104,17 +113,11 @@ namespace Pizzaria.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Position")
-                        .HasColumnType("int");
-
                     b.Property<float>("Price")
                         .HasColumnType("real");
 
                     b.Property<float>("ProductionCost")
                         .HasColumnType("real");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
 
                     b.Property<string>("SizeCategory")
                         .IsRequired()
@@ -134,8 +137,13 @@ namespace Pizzaria.Migrations
                     b.Property<Guid>("IngredientId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("PizzaId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("IngredientName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PizzaId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<float>("Quantity")
                         .HasColumnType("real");
@@ -155,17 +163,29 @@ namespace Pizzaria.Migrations
 
             modelBuilder.Entity("OrderPizza", b =>
                 {
-                    b.HasOne("Order", null)
-                        .WithMany()
-                        .HasForeignKey("OrdersId")
+                    b.HasOne("Pizza", "FirstPizza")
+                        .WithMany("OrderPizzas1")
+                        .HasForeignKey("FirstPizzaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Order", "Order")
+                        .WithMany("OrderPizzas")
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Pizza", null)
-                        .WithMany()
-                        .HasForeignKey("PizzasId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("Pizza", "SecondPizza")
+                        .WithMany("OrderPizzas2")
+                        .HasForeignKey("SecondPizzaId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("FirstPizza");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("SecondPizza");
                 });
 
             modelBuilder.Entity("PizzaIngredient", b =>
@@ -192,8 +212,17 @@ namespace Pizzaria.Migrations
                     b.Navigation("PizzaIngredients");
                 });
 
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.Navigation("OrderPizzas");
+                });
+
             modelBuilder.Entity("Pizza", b =>
                 {
+                    b.Navigation("OrderPizzas1");
+
+                    b.Navigation("OrderPizzas2");
+
                     b.Navigation("PizzaIngredients");
                 });
 #pragma warning restore 612, 618
