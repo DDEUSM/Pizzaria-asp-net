@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 [Route("[controller]")]
 public class OrdersController: ControllerBase
 {    
+    private OrderUseCases _orderUseCases { get; set; }
     public OrdersController (
-       
+       OrderUseCases orderUseCases
     ){
-      
+        _orderUseCases = orderUseCases;
     }
 
     [HttpPost()]
