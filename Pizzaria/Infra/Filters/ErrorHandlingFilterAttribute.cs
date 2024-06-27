@@ -12,13 +12,10 @@ public class ErrorHandlingFilterAttribute : ExceptionFilterAttribute
             problem = new ProblemDetails 
             {            
                 Detail = apiException.Message,
-                Status = apiException.StatusCode
+                Status = apiException.StatusCode,
             };
-
             context.Result = new ObjectResult(problem);
-
             context.ExceptionHandled = true;
-
             return;
         }
 
@@ -28,7 +25,6 @@ public class ErrorHandlingFilterAttribute : ExceptionFilterAttribute
         };
 
         context.Result = new ObjectResult(problem);
-
         context.ExceptionHandled = true;
     }
 }
