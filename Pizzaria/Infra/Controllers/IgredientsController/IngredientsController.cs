@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
+
 [ApiController]
 [Route("[controller]")]
 public class IngredientsController: ControllerBase
@@ -56,7 +57,7 @@ public class IngredientsController: ControllerBase
     [HttpPatch("{id:guid}")]
     public IActionResult Update(Guid id, JsonPatchDocument<IngredientDto> patch)
     {
-         if (patch == null)
+        if (patch == null)
         {
             throw new ApiException (
                 message: "Bad request patch",
@@ -64,6 +65,13 @@ public class IngredientsController: ControllerBase
             );
         }
         _ingredientUseCases.Update(id, patch, ModelState);
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/increment")]
+    public IActionResult IncrementQuantity(Guid id, [FromBody] IcrementQuantityDto  incrementQuantityDto)
+    {
+        _ingredientUseCases.IncrementQuantity(id, incrementQuantityDto);
         return NoContent();
     }
 

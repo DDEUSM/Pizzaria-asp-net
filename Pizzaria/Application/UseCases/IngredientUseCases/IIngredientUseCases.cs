@@ -9,5 +9,5 @@ public interface IIngredientUseCases
     public List<Ingredient> Get(IngredientQuery ingredientQuery);
     public void Update(Guid id, JsonPatchDocument<IngredientDto> ingredientPatchDocument, ModelStateDictionary ModelState);
     public void Delete(Guid id);
-
+    public void IncrementQuantity(Guid id, IcrementQuantityDto incrementQuantityDto);
 }

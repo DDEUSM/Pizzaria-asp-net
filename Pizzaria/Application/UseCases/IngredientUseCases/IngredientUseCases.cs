@@ -110,4 +110,20 @@ public class IngredientUseCases : IIngredientUseCases
         throw new NotImplementedException();
     }
 
+    public void IncrementQuantity(Guid id, IcrementQuantityDto incrementQuantityDto)
+    {
+        Ingredient? foundedIngredient = PizzariaContext.Ingredients.Find(id);
+
+        if (foundedIngredient == null)
+        {
+            throw new ApiException(
+                message: "ingredient not founded",
+                statusCode: 404
+               );
+        }
+
+        foundedIngredient.Quantity += incrementQuantityDto.IncrementValue;
+        PizzariaContext.Ingredients.Update(foundedIngredient);
+        PizzariaContext.SaveChanges(true);
+    }
 }

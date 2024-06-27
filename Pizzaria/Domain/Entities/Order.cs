@@ -7,6 +7,8 @@ public class Order
     public Guid Id { get; init; }
     public int TableId { get; set; }
     public int CommandId { get; set; }    
+    public float TotalPrice { get; set; }
+    public DateTime CreatedAt { get; set; }
     public ICollection<OrderPizza> OrderPizzas { get; set; }
 
     public Order()
@@ -16,11 +18,15 @@ public class Order
     public Order (
         Guid id,
         int tableId,
-        int command        
+        int commandId,
+        float totalPrice,
+        DateTime createdAt   
     ) : this()
     {
         Id = id;
         TableId = tableId;
-        CommandId = command;        
+        CommandId = commandId;     
+        TotalPrice = totalPrice;   
+        CreatedAt = createdAt;
     }
 }
